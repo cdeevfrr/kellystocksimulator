@@ -6,6 +6,8 @@ import babel from '@rolldown/plugin-babel'
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] })
+    babel({ presets: [reactCompilerPreset()] }),
   ],
+  // Tell vite that assets will be served at domain/kellystocksimulator/* (since we're deploying on gh-pages, cdeevfrr.github.io/repoName/.....)
+  base: '/kellystocksimulator/', 
 })
