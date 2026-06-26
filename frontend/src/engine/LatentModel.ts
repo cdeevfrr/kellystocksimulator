@@ -124,7 +124,7 @@ export function fallingLatentStep({
     const ratio = Math.exp(newLogPrice - newLogFairPrice)
     const crashOverHazardRate = 1 / (ratio ** 2) * crashEndRate
 
-    const crashOverProbability = 1 - Math.exp(crashOverHazardRate * dt)
+    const crashOverProbability = 1 - Math.exp( - crashOverHazardRate * dt)
 
     return {
         logFairPrice: newLogFairPrice,
