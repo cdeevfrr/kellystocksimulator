@@ -3,7 +3,13 @@ import { useMemo, useState } from "react";
 import { generateLatentPath, type LatentModelParams } from "../engine/LatentModel";
 import { rng } from "../engine/random";
 
-const defaultParams: LatentModelParams = {
+type ParamsList = LatentModelParams & {
+    years: number,
+    stepsPerYear: number,
+    seedBase: number,
+}
+
+const defaultParams: ParamsList = {
   mu: 0.06,
   sigma: 0.2,
   bubbleExcessMu: 0.15,
@@ -12,26 +18,34 @@ const defaultParams: LatentModelParams = {
   crashEndRate: 0.3,
   initialPrice: 100,
   initialFairPrice: 100,
+  years: 3,
+  stepsPerYear: 252,
+  seedBase: Math.round(Math.random() * 100),
 };
 
 const NUM_PATHS = 3;
-const COLORS = ["#2563eb", "#dc2626", "#16a34a"];
+const COLORS: Array<{base: string, light: string}> = [
+    {base: "#2563eb", light: ""}, 
+    {base: "#dc2626", light: ""}, 
+    {base: "#16a34a", light: ""},
+]
 const WIDTH = 700;
 const HEIGHT = 400;
 const PAD = 40;
 
 export default function LatentBubbleChart() {
-  const [params, setParams] = useState(defaultParams);
-  const [years, setYears] = useState(3);
-  const [stepsPerYear, setStepsPerYear] = useState(252);
-  const [seedBase, setSeedBase] = useState(1);
+  const [params, setParams] = useState<ParamsList>(defaultParams);
 
+  // Because we memo on seedBase, this will recalculate whenever seed base is changed.
+  // the fact that generatePath doesn't use seedBase for now is ignored. If we want
+  // reproducability, just make RNG be generatable from a seed base; not currently a
+  // needed feature.
   const paths = useMemo(
     () =>
       Array.from({ length: NUM_PATHS }, (_, i) =>
-        generateLatentPath(params, years, stepsPerYear, rng)
+        generateLatentPath(params, params.years, params.stepsPerYear, rng)
       ),
-    [params, years, stepsPerYear, seedBase]
+    [params, params.years, params.stepsPerYear, params.seedBase]
   );
 
   const allPrices = paths.flat().flatMap(p => [p.price, p.fairPrice]);
@@ -39,12 +53,12 @@ export default function LatentBubbleChart() {
   const maxP = Math.max(...allPrices);
 
   function toXY(t: number, price: number): [number, number] {
-    const x = PAD + (t / years) * (WIDTH - 2 * PAD);
+    const x = PAD + (t / params.years) * (WIDTH - 2 * PAD);
     const y = HEIGHT - PAD - ((price - minP) / (maxP - minP || 1)) * (HEIGHT - 2 * PAD);
     return [x, y];
   }
 
-  function field(label: string, key: keyof LatentModelParams, step = 0.01) {
+  function field(label: string, key: keyof ParamsList, step = 0.01) {
     return (
       <label style={{ display: "block", marginBottom: 6, fontSize: 13 }}>
         {label}
@@ -73,51 +87,37 @@ export default function LatentBubbleChart() {
         {field("Crash end rate", "crashEndRate")}
         {field("Initial price", "initialPrice", 1)}
         {field("Initial fair price", "initialFairPrice", 1)}
+        {field("Years", "years", .1)}
+        {field("Steps/year", "stepsPerYear", 1)}
 
-        <label style={{ display: "block", marginTop: 12 }}>
-          Years
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={years}
-            onChange={e => setYears(parseFloat(e.target.value))}
-            style={{ marginLeft: 8, width: 60 }}
-          />
-        </label>
-        <label style={{ display: "block", marginTop: 6 }}>
-          Steps/year
-          <input
-            type="number"
-            value={stepsPerYear}
-            onChange={e => setStepsPerYear(parseInt(e.target.value))}
-            style={{ marginLeft: 8, width: 60 }}
-          />
-        </label>
-
-        <button style={{ marginTop: 12 }} onClick={() => setSeedBase(s => s + 1)}>
+        <button style={{ marginTop: 12 }} onClick={() => {
+            setParams(p => ({ ...p, seedBase: params.seedBase + 1 }))
+        }}>
           Resample (new seed)
         </button>
       </div>
 
       <svg width={WIDTH} height={HEIGHT} style={{ border: "1px solid #ccc" }}>
-        {/* fair price reference, dashed */}
-        <polyline
-          fill="none"
-          stroke="#999"
-          strokeDasharray="4 4"
-          strokeWidth={1}
-          points={paths[0].map(p => toXY(p.t, p.fairPrice).join(",")).join(" ")}
-        />
         {paths.map((path, i) => (
           <polyline
             key={i}
             fill="none"
-            stroke={COLORS[i % COLORS.length]}
+            stroke={COLORS[i % COLORS.length].base}
             strokeWidth={1.5}
             points={path.map(p => toXY(p.t, p.price).join(",")).join(" ")}
           />
         ))}
+        {/* fair price reference, dashed */}
+        {paths.map((path, i) => (
+          <polyline
+            fill="none"
+            stroke={COLORS[i % COLORS.length].base}
+            strokeDasharray="4 4"
+            strokeWidth={1}
+            points={path.map(p => toXY(p.t, p.fairPrice).join(",")).join(" ")}
+            />
+        ))}
+        
       </svg>
     </div>
   );
