@@ -25,9 +25,9 @@ import { gbmIncrement } from "./PathModels";
 import type { RNG } from "./random";
 
 interface latentStepState {
-    logPrice: number, 
-    logFairPrice: number, 
-    regimeShift: boolean,
+  logPrice: number,
+  logFairPrice: number,
+  regimeShift: boolean,
 }
 
 /**
@@ -39,49 +39,49 @@ interface latentStepState {
  * @returns 
  */
 export function risingLatentStep({
-    mu,
-    sigma,
-    dt,
-    logFairPrice,
-    logLastPrice,
-    bubbleExcessMu,
-    hazardRatePerDivergence,
-    rng
-}:{
-    mu: number,
-    sigma: number,
-    dt: number,
-    logFairPrice: number,
-    logLastPrice: number,
-    bubbleExcessMu: number,
-    /**
-     * We model the chance of regime shift as poisson, so if you expect h events per year, 
-     * p(no issues) = e^(-h*t).
-     * 
-     * HazardRatePerDivergence is used to calculate the expected number of crashes per year, h. 
-     * We multiply the excess (eg, price = 1.7 fairPrice = 1, then excess is .7)
-     * by hazardRatePerDivergence to say how many crashes per year you expect.
-     */
-    hazardRatePerDivergence: number,
-    rng: RNG,
+  mu,
+  sigma,
+  dt,
+  logFairPrice,
+  logLastPrice,
+  bubbleExcessMu,
+  hazardRatePerDivergence,
+  rng
+}: {
+  mu: number,
+  sigma: number,
+  dt: number,
+  logFairPrice: number,
+  logLastPrice: number,
+  bubbleExcessMu: number,
+  /**
+   * We model the chance of regime shift as poisson, so if you expect h events per year, 
+   * p(no issues) = e^(-h*t).
+   * 
+   * HazardRatePerDivergence is used to calculate the expected number of crashes per year, h. 
+   * We multiply the excess (eg, price = 1.7 fairPrice = 1, then excess is .7)
+   * by hazardRatePerDivergence to say how many crashes per year you expect.
+   */
+  hazardRatePerDivergence: number,
+  rng: RNG,
 }): latentStepState {
-    const bubbleGrowth = gbmIncrement(bubbleExcessMu, sigma, dt, rng.gaussian())
-    const fairGrowth = gbmIncrement(mu, sigma, dt, rng.gaussian())
+  const bubbleGrowth = gbmIncrement(bubbleExcessMu, sigma, dt, rng.gaussian())
+  const fairGrowth = gbmIncrement(mu, sigma, dt, rng.gaussian())
 
-    const newLogFairPrice = logFairPrice + fairGrowth
-    const newLogPrice = logLastPrice + fairGrowth + bubbleGrowth
+  const newLogFairPrice = logFairPrice + fairGrowth
+  const newLogPrice = logLastPrice + fairGrowth + bubbleGrowth
 
-    const priceRatio = Math.exp(newLogPrice - newLogFairPrice); // equals price / fairPrice
+  const priceRatio = Math.exp(newLogPrice - newLogFairPrice); // equals price / fairPrice
 
-    // Translate instant hazard rate to the exact probability for this dt window.
-    // P(shift in dt) = 1 - exp(-h * dt)
-    const fallProbability = 1 - Math.exp(- hazardRatePerDivergence * (priceRatio - 1) * dt);
-    
-    return {
-        logPrice: newLogPrice,
-        logFairPrice: newLogFairPrice,
-        regimeShift: rng.uniform() < fallProbability
-    };
+  // Translate instant hazard rate to the exact probability for this dt window.
+  // P(shift in dt) = 1 - exp(-h * dt)
+  const fallProbability = 1 - Math.exp(- hazardRatePerDivergence * (priceRatio - 1) * dt);
+
+  return {
+    logPrice: newLogPrice,
+    logFairPrice: newLogFairPrice,
+    regimeShift: rng.uniform() < fallProbability
+  };
 }
 
 /**
@@ -90,53 +90,53 @@ export function risingLatentStep({
  * @param param0 
  */
 export function fallingLatentStep({
+  sigma,
+  mu,
+  dt,
+  crashMu,
+  crashEndRate,
+  logFairPrice,
+  logLastPrice,
+  rng
+}: {
+  sigma: number,
+  mu: number,
+  dt: number,
+  crashMu: number, // Should be large and negative.
+  crashEndRate: number, // 0-1 valued. Modifies how likely the crash is to lose steam, and for us to return to bubble regime. 
+  logFairPrice: number,
+  logLastPrice: number,
+  rng: RNG,
+}): latentStepState {
+  const oldRatio = Math.exp(logLastPrice - logFairPrice)
+  const crashStepSize = gbmIncrement(
+    // If you're below fair price, slow the crash down.
+    oldRatio >= 1 ? crashMu : crashMu * oldRatio,
     sigma,
-    mu,
     dt,
-    crashMu,
-    crashEndRate,
-    logFairPrice,
-    logLastPrice,
-    rng
-}:{
-    sigma: number,
-    mu: number,
-    dt: number,
-    crashMu: number, // Should be large and negative.
-    crashEndRate: number, // 0-1 valued. Modifies how likely the crash is to lose steam, and for us to return to bubble regime. 
-    logFairPrice: number,
-    logLastPrice: number,
-    rng: RNG,
-}) : latentStepState {
-    const oldRatio = Math.exp(logLastPrice - logFairPrice)
-    const crashStepSize = gbmIncrement(
-      // If you're below fair price, slow the crash down.
-      oldRatio >= 1 ? crashMu : crashMu * oldRatio, 
-      sigma, 
-      dt, 
-      rng.gaussian())
-    const fairStepSize = gbmIncrement(mu, sigma, dt, rng.gaussian())
+    rng.gaussian())
+  const fairStepSize = gbmIncrement(mu, sigma, dt, rng.gaussian())
 
-    const newLogFairPrice = logFairPrice + fairStepSize
-    const newLogPrice = logLastPrice + crashStepSize + fairStepSize
+  const newLogFairPrice = logFairPrice + fairStepSize
+  const newLogPrice = logLastPrice + crashStepSize + fairStepSize
 
-    // For crashOverHazardRage,
-    // I just picked a formula that felt right, to get numbers near these:
-    // (price to fairPrice ratio -> crashOverEventsPerYear)
-    // 1 -> 1
-    // 1.2 -> .7
-    // 2 -> .25
-    // .8 -> .5
-    const ratio = Math.exp(newLogPrice - newLogFairPrice)
-    const crashOverHazardRate = 1 / (ratio ** 2) * crashEndRate
+  // For crashOverHazardRage,
+  // I just picked a formula that felt right, to get numbers near these:
+  // (price to fairPrice ratio -> crashOverEventsPerYear)
+  // 1 -> 1
+  // 1.2 -> .7
+  // 2 -> .25
+  // .8 -> .5
+  const ratio = Math.exp(newLogPrice - newLogFairPrice)
+  const crashOverHazardRate = 1 / (ratio ** 2) * crashEndRate
 
-    const crashOverProbability = 1 - Math.exp( - crashOverHazardRate * dt)
+  const crashOverProbability = 1 - Math.exp(- crashOverHazardRate * dt)
 
-    return {
-        logFairPrice: newLogFairPrice,
-        logPrice: newLogPrice,
-        regimeShift: rng.uniform() < crashOverProbability
-    }
+  return {
+    logFairPrice: newLogFairPrice,
+    logPrice: newLogPrice,
+    regimeShift: rng.uniform() < crashOverProbability
+  }
 
 }
 
@@ -182,25 +182,25 @@ export function generateLatentPath(
     const result =
       regime === "rising"
         ? risingLatentStep({
-            mu: params.mu,
-            sigma: params.sigma,
-            dt,
-            logFairPrice,
-            logLastPrice: logPrice,
-            bubbleExcessMu: params.bubbleExcessMu,
-            hazardRatePerDivergence: params.hazardRatePerDivergence,
-            rng,
-          })
+          mu: params.mu,
+          sigma: params.sigma,
+          dt,
+          logFairPrice,
+          logLastPrice: logPrice,
+          bubbleExcessMu: params.bubbleExcessMu,
+          hazardRatePerDivergence: params.hazardRatePerDivergence,
+          rng,
+        })
         : fallingLatentStep({
-            mu: params.mu,
-            sigma: params.sigma,
-            dt,
-            crashMu: params.crashMu,
-            crashEndRate: params.crashEndRate,
-            logFairPrice,
-            logLastPrice: logPrice,
-            rng,
-          });
+          mu: params.mu,
+          sigma: params.sigma,
+          dt,
+          crashMu: params.crashMu,
+          crashEndRate: params.crashEndRate,
+          logFairPrice,
+          logLastPrice: logPrice,
+          rng,
+        });
 
     logPrice = result.logPrice;
     logFairPrice = result.logFairPrice;
@@ -219,7 +219,3 @@ export function generateLatentPath(
 
   return path;
 }
-
-
-
-
