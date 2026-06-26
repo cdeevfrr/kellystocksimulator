@@ -49,8 +49,9 @@ const PAD = 40;
 export default function LatentBubbleChart() {
   const [params, setParams] = useState<ParamsList>(defaultParams);
 
-  // Because we memo on seedBase, this will recalculate whenever seed base is changed.
-  // the fact that generatePath doesn't use seedBase for now is ignored. If we want
+  // Because we memo on seedBase (part of params), 
+  // this will recalculate whenever seed base is changed.
+  // The fact that generatePath doesn't use seedBase for now is ignored. If we want
   // reproducability, just make RNG be generatable from a seed base; not currently a
   // needed feature.
   const paths = useMemo(
@@ -58,7 +59,7 @@ export default function LatentBubbleChart() {
       Array.from({ length: NUM_PATHS }, (_, i) =>
         generateLatentPath(params, params.years, params.stepsPerYear, rng)
       ),
-    [params, params.years, params.stepsPerYear, params.seedBase]
+    [params]
   );
 
   const allPrices = paths.flat().flatMap(p => [p.price, p.fairPrice]);
@@ -86,23 +87,6 @@ export default function LatentBubbleChart() {
         </label>
     );
     }
-
-  function field(label: string, key: keyof ParamsList, step = 0.01) {
-    return (
-      <label style={{ display: "block", marginBottom: 6, fontSize: 13 }}>
-        {label}
-        <input
-          type="value"
-          step={step}
-          value={params[key]}
-          onChange={e =>
-            setParams(p => ({ ...p, [key]: parseFloat(e.target.value) }))
-          }
-          style={{ marginLeft: 8, width: 90 }}
-        />
-      </label>
-    );
-  }
 
   return (
     <div style={{ display: "flex", gap: 24, fontFamily: "sans-serif" }}>
