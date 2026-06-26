@@ -137,6 +137,82 @@ export function fallingLatentStep({
 
 
 
+export interface LatentModelParams {
+  mu: number;
+  sigma: number;
+  bubbleExcessMu: number;
+  hazardRatePerDivergence: number;
+  crashMu: number;       // should be large & negative
+  crashEndRate: number;  // 0-1
+  initialPrice: number;
+  initialFairPrice: number;
+}
+
+export interface LatentPathPoint {
+  t: number;
+  price: number;
+  fairPrice: number;
+  regime: "rising" | "falling";
+}
+
+export function generateLatentPath(
+  params: LatentModelParams,
+  years: number,
+  stepsPerYear: number,
+  rng: RNG
+): LatentPathPoint[] {
+  const dt = 1 / stepsPerYear;
+  const totalSteps = Math.round(years * stepsPerYear);
+
+  let logPrice = Math.log(params.initialPrice);
+  let logFairPrice = Math.log(params.initialFairPrice);
+  let regime: "rising" | "falling" = "rising";
+
+  const path: LatentPathPoint[] = [
+    { t: 0, price: params.initialPrice, fairPrice: params.initialFairPrice, regime },
+  ];
+
+  for (let i = 1; i <= totalSteps; i++) {
+    const result =
+      regime === "rising"
+        ? risingLatentStep({
+            mu: params.mu,
+            sigma: params.sigma,
+            dt,
+            logFairPrice,
+            logLastPrice: logPrice,
+            bubbleExcessMu: params.bubbleExcessMu,
+            hazardRatePerDivergence: params.hazardRatePerDivergence,
+            rng,
+          })
+        : fallingLatentStep({
+            mu: params.mu,
+            sigma: params.sigma,
+            dt,
+            crashMu: params.crashMu,
+            crashEndRate: params.crashEndRate,
+            logFairPrice,
+            logLastPrice: logPrice,
+            rng,
+          });
+
+    logPrice = result.logPrice;
+    logFairPrice = result.logFairPrice;
+
+    if (result.regimeShift) {
+      regime = regime === "rising" ? "falling" : "rising";
+    }
+
+    path.push({
+      t: i * dt,
+      price: Math.exp(logPrice),
+      fairPrice: Math.exp(logFairPrice),
+      regime,
+    });
+  }
+
+  return path;
+}
 
 
 
