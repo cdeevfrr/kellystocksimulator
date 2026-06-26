@@ -9,6 +9,19 @@ type ParamsList = LatentModelParams & {
     seedBase: number,
 }
 
+const SLIDER_CONFIG: Record<keyof Omit<ParamsList, "seedBase">, { min: number; max: number; step: number }> = {
+  mu: { min: -0.2, max: 0.3, step: 0.01 },
+  sigma: { min: 0, max: 0.6, step: 0.01 },
+  bubbleExcessMu: { min: 0, max: 0.5, step: 0.01 },
+  hazardRatePerDivergence: { min: 0, max: 3, step: 0.05 },
+  crashMu: { min: -3, max: 0, step: 0.05 },
+  crashEndRate: { min: 0, max: 1, step: 0.05 },
+  initialPrice: { min: 1, max: 500, step: 1 },
+  initialFairPrice: { min: 1, max: 500, step: 1 },
+  years: { min: 1, max: 20, step: 1 },
+  stepsPerYear: { min: 12, max: 365, step: 1 },
+};
+
 const defaultParams: ParamsList = {
   mu: 0.06,
   sigma: 0.2,
@@ -58,6 +71,22 @@ export default function LatentBubbleChart() {
     return [x, y];
   }
 
+  function sliderField(label: string, key: keyof Omit<ParamsList, 'seedBase'>) {
+  const { min, max, step } = SLIDER_CONFIG[key];
+    return (
+        <label style={{ display: "block", marginBottom: 10, fontSize: 13 }}>
+        {label}: {params[key]}
+        <input
+            type="range"
+            min={min} max={max} step={step}
+            value={params[key]}
+            onChange={e => setParams(p => ({ ...p, [key]: parseFloat(e.target.value) }))}
+            style={{ display: "block", width: "100%" }}
+        />
+        </label>
+    );
+    }
+
   function field(label: string, key: keyof ParamsList, step = 0.01) {
     return (
       <label style={{ display: "block", marginBottom: 6, fontSize: 13 }}>
@@ -79,16 +108,16 @@ export default function LatentBubbleChart() {
     <div style={{ display: "flex", gap: 24, fontFamily: "sans-serif" }}>
       <div style={{ minWidth: 220 }}>
         <h3>Latent Bubble Model</h3>
-        {field("Fair drift (mu)", "mu")}
-        {field("Volatility (sigma)", "sigma")}
-        {field("Bubble excess mu", "bubbleExcessMu")}
-        {field("Hazard / divergence", "hazardRatePerDivergence")}
-        {field("Crash mu", "crashMu", 0.1)}
-        {field("Crash end rate", "crashEndRate")}
-        {field("Initial price", "initialPrice", 1)}
-        {field("Initial fair price", "initialFairPrice", 1)}
-        {field("Years", "years", .1)}
-        {field("Steps/year", "stepsPerYear", 1)}
+        {sliderField("Fair drift (mu)", "mu")}
+        {sliderField("Volatility (sigma)", "sigma")}
+        {sliderField("Bubble excess mu", "bubbleExcessMu")}
+        {sliderField("Hazard / divergence", "hazardRatePerDivergence")}
+        {sliderField("Crash mu", "crashMu")}
+        {sliderField("Crash end rate", "crashEndRate")}
+        {sliderField("Initial price", "initialPrice")}
+        {sliderField("Initial fair price", "initialFairPrice")}
+        {sliderField("Years", "years")}
+        {sliderField("Steps/year", "stepsPerYear")}
 
         <button style={{ marginTop: 12 }} onClick={() => {
             setParams(p => ({ ...p, seedBase: params.seedBase + 1 }))
