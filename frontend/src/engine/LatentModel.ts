@@ -108,7 +108,13 @@ export function fallingLatentStep({
     logLastPrice: number,
     rng: RNG,
 }) : latentStepState {
-    const crashStepSize = gbmIncrement(crashMu, sigma, dt, rng.gaussian())
+    const oldRatio = Math.exp(logLastPrice - logFairPrice)
+    const crashStepSize = gbmIncrement(
+      // If you're below fair price, slow the crash down.
+      oldRatio >= 1 ? crashMu : crashMu * oldRatio, 
+      sigma, 
+      dt, 
+      rng.gaussian())
     const fairStepSize = gbmIncrement(mu, sigma, dt, rng.gaussian())
 
     const newLogFairPrice = logFairPrice + fairStepSize
