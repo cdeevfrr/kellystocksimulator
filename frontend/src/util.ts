@@ -1,3 +1,4 @@
-export const keysOf = <T extends object>(obj: T): Array<keyof T> => {
-  return Object.keys(obj) as Array<keyof T>;
-};
+export function equalWeights(assetIds: string[]): Record<string, number> {
+  const w = assetIds.length > 0 ? 1 / assetIds.length : 0;
+  return Object.fromEntries(assetIds.map((id) => [id, w]));
+}
