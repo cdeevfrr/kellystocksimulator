@@ -10,5 +10,7 @@ import { periodicRebalanceModule, type PeriodicRebalanceConfig } from "./Periodi
 export type PortfolioConfig = BuyAndHoldConfig | PeriodicRebalanceConfig;
 export type PortfolioType = PortfolioConfig["type"]; // this type is equal to a union of strings.
 
-export const PORTFOLIO_MODULES = [buyAndHoldModule, periodicRebalanceModule] as const;
-export const PORTFOLIO_TYPE_LIST = PORTFOLIO_MODULES.map((m) => ({ type: m.type, label: m.label }));
+export const PORTFOLIO_MODULES = {
+    [buyAndHoldModule.type]: buyAndHoldModule, 
+    [periodicRebalanceModule.type]: periodicRebalanceModule,
+ } as const;

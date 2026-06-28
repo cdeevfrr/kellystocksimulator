@@ -23,7 +23,7 @@ export function AssetsPage() {
 
   return (
     <div style={{ display: "flex" }}>
-      <div style={{ width: 220 }}>
+      <div style={{ width: 220 }}> {/* List existing assets */}
         {assets.map((a) => (
           <div key={a.id} onClick={() => setSelectedId(a.id)}>
             {a.name} <button onClick={() => removeAsset(a.id)}>✕</button>
@@ -33,6 +33,7 @@ export function AssetsPage() {
           <button key={t} onClick={() => createAsset(t as AssetType)}>+ {ASSET_REGISTRY[t as AssetType].label}</button>
         ))}
       </div>
+      {/* Detail view for selected Asset */}
       {selected && (
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '0.5em'}}>
