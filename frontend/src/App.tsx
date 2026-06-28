@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
-import LatentBubbleChart from './components/LatentBubbleChart'
+import { AssetsPage } from './components/AssetsPage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -12,7 +12,7 @@ function App() {
     <>
       <section id="center">
         <div>
-          <LatentBubbleChart></LatentBubbleChart>
+          <AssetsPage></AssetsPage>
         </div>
         
       </section>

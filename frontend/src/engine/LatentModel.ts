@@ -219,3 +219,31 @@ export function generateLatentPath(
 
   return path;
 }
+
+
+
+/** 
+ * GUI Config settings
+ */
+
+export const LatentSliderConfig: Record<keyof LatentModelParams, { min: number; max: number; step: number }> = {
+    mu: { min: -0.2, max: 0.3, step: 0.01 },
+    sigma: { min: 0, max: 0.6, step: 0.01 },
+    bubbleExcessMu: { min: 0, max: 0.5, step: 0.01 },
+    hazardRatePerDivergence: { min: 0, max: 3, step: 0.05 },
+    crashMu: { min: -3, max: 0, step: 0.05 },
+    crashEndRate: { min: 0, max: 1, step: 0.05 },
+    initialPrice: { min: 1, max: 500, step: 1 },
+    initialFairPrice: { min: 1, max: 500, step: 1 },
+};
+
+export const LatentSliderDefaultParams: LatentModelParams = {
+    mu: 0.06,
+    sigma: 0.2,
+    bubbleExcessMu: 0.15,
+    hazardRatePerDivergence: 0.5,
+    crashMu: -1.5,
+    crashEndRate: 0.3,
+    initialPrice: 100,
+    initialFairPrice: 100,
+};
