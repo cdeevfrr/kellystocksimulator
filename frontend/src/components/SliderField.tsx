@@ -15,7 +15,7 @@ export function SliderField({
 }) {
     return (
         <label style={{ display: "block", marginBottom: 10, fontSize: 13 }}>
-            {label}: {value}
+            {label}: {value.toFixed(2)}
             <input
                 type="range"
                 min={min} max={max} step={step}

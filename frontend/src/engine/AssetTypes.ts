@@ -26,3 +26,6 @@ export interface DeterministicAssetConfig extends AssetConfigBase {
 
 export type AssetConfig = LatentBubbleAssetConfig // GbmAssetConfig | LatentBubbleAssetConfig | DeterministicAssetConfig;
 // add MeanRevertingAssetConfig the same way
+
+
+export type AssetId = string

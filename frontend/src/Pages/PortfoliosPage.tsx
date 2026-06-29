@@ -9,6 +9,7 @@ import { usePortfolioStore } from "../store/usePortfolioStore";
 import { useAssetStore } from "../store/useAssetStore";
 import { SliderField } from "../components/SliderField";
 import { WeightsEditor } from "../components/WeightsEditor";
+import type { AssetId } from "../engine/AssetTypes";
 
 function PortfolioEditorSection({
     config,
@@ -37,7 +38,7 @@ function PortfolioEditor({
     onChange,
 }: {
     config: PortfolioConfig;
-    assetIds: string[];
+    assetIds: AssetId[];
     onChange: (config: PortfolioConfig) => void;
 }) {
     switch (config.type) {
@@ -45,7 +46,6 @@ function PortfolioEditor({
             return (
                 <WeightsEditor
                     weights={config.params.weights}
-                    assetIds={assetIds}
                     onChange={(weights) => onChange({ ...config, params: { weights } })}
                 />
             );
@@ -54,7 +54,6 @@ function PortfolioEditor({
                 <>
                     <WeightsEditor
                         weights={config.params.weights}
-                        assetIds={assetIds}
                         onChange={(weights) => onChange({ ...config, params: { ...config.params, weights } })}
                     />
                     <SliderField

@@ -1,3 +1,4 @@
+import type { AssetId } from "../AssetTypes";
 import { buyAndHoldModule, type BuyAndHoldConfig } from "./BuyAndHold"
 import { periodicRebalanceModule, type PeriodicRebalanceConfig } from "./PeriodicRebalance";
 
@@ -14,3 +15,10 @@ export const PORTFOLIO_MODULES = {
     [buyAndHoldModule.type]: buyAndHoldModule, 
     [periodicRebalanceModule.type]: periodicRebalanceModule,
  } as const;
+
+
+ export type Allocation = Record<AssetId, number>
+
+ export function totalAllocated(allocation: Allocation){
+    return Object.entries(allocation).reduce((previousValue, currentValue) => ["sum", previousValue[1] + currentValue[1]])[1]
+ }
