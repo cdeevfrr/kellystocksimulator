@@ -1,6 +1,6 @@
 import type { AssetType } from "./AssetTypes";
 import { generateLatentPath, LatentSliderConfig, LatentSliderDefaultParams } from "./LatentModel";
-import type { RNG } from "./random";
+import type { RNG } from "../random";
 
 // engine/assetRegistry.ts
 export interface PathPoint { t: number; price: number; fairPrice?: number }
