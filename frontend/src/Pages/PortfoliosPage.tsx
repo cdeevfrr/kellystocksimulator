@@ -9,15 +9,12 @@ import { usePortfolioStore } from "../store/usePortfolioStore";
 import { useAssetStore } from "../store/useAssetStore";
 import { SliderField } from "../components/SliderField";
 import { WeightsEditor } from "../components/WeightsEditor";
-import type { AssetId } from "../engine/Asset/AssetTypes";
 
 function PortfolioEditorSection({
     config,
-    assetIds,
     onChange,
 }: {
     config: PortfolioConfig;
-    assetIds: string[];
     onChange: (config: PortfolioConfig) => void;
 }) {
     return (<>
@@ -28,17 +25,15 @@ function PortfolioEditorSection({
                 onChange={(e) => onChange({ ...config, name: e.target.value })}
             />
         </div>
-        <PortfolioEditor config={config} assetIds={assetIds} onChange={onChange} />
+        <PortfolioEditor config={config} onChange={onChange} />
     </>)
 }
 
 function PortfolioEditor({
     config,
-    assetIds,
     onChange,
 }: {
     config: PortfolioConfig;
-    assetIds: AssetId[];
     onChange: (config: PortfolioConfig) => void;
 }) {
     switch (config.type) {
@@ -115,7 +110,6 @@ export function PortfoliosPage() {
                 <div style={{ flex: 1 }}>
                     <PortfolioEditorSection
                         config={selected}
-                        assetIds={assetIds}
                         onChange={(updated) => updatePortfolio(selected.id, updated)}
                     />
                 </div>

@@ -24,7 +24,7 @@ export function AssetPreview({ config, years, stepsPerYear, onParamsChange }: {
   const params = config.params as unknown as Record<string, number>;
 
   const paths = useMemo(
-    () => Array.from({ length: 3 }, (_, i) =>
+    () => Array.from({ length: 3 }, (_, _i) =>
       def.generatePreviewPath(config.params, years, stepsPerYear, rng)
     ),
     [config.params, years, stepsPerYear, seedBase]
