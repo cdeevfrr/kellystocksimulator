@@ -1,4 +1,4 @@
-import type { PathPoint } from "../engine/AssetRegistry";
+import type { PathPoint } from "../engine/Asset/AssetRegistry";
 
 const COLORS: Array<{ base: string, light: string }> = [
     { base: "#2563eb", light: "" },

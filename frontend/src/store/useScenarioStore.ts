@@ -1,6 +1,6 @@
 // store/useScenarioStore.ts
 import { create } from "zustand";
-import { ASSET_REGISTRY } from "../engine/AssetRegistry";
+import { ASSET_REGISTRY } from "../engine/Asset/AssetRegistry";
 import { useAssetStore } from "./useAssetStore";
 import { useSimConfigStore } from "./useSimConfigStore";
 import { rng } from "../engine/random";

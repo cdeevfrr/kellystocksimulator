@@ -9,7 +9,7 @@ import { usePortfolioStore } from "../store/usePortfolioStore";
 import { useAssetStore } from "../store/useAssetStore";
 import { SliderField } from "../components/SliderField";
 import { WeightsEditor } from "../components/WeightsEditor";
-import type { AssetId } from "../engine/AssetTypes";
+import type { AssetId } from "../engine/Asset/AssetTypes";
 
 function PortfolioEditorSection({
     config,

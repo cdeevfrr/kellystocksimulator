@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ASSET_REGISTRY } from "../engine/AssetRegistry.ts";
+import { ASSET_REGISTRY } from "../engine/Asset/AssetRegistry.ts";
 import { AssetPreview } from "../components/AssetPreview.tsx";
-import type { AssetType } from "../engine/AssetTypes.ts";
+import type { AssetType } from "../engine/Asset/AssetTypes.ts";
 import { useAssetStore } from "../store/useAssetStore.ts"
 import { SliderField } from "../components/SliderField.tsx";
 

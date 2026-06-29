@@ -1,4 +1,4 @@
-import type { AssetId } from "../AssetTypes";
+import type { AssetId } from "../Asset/AssetTypes";
 import { buyAndHoldModule, type BuyAndHoldConfig } from "./BuyAndHold"
 import { periodicRebalanceModule, type PeriodicRebalanceConfig } from "./PeriodicRebalance";
 

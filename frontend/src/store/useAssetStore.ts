@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AssetConfig } from "../engine/AssetTypes";
+import type { AssetConfig } from "../engine/Asset/AssetTypes";
 
 interface AssetStore {
   assets: AssetConfig[];

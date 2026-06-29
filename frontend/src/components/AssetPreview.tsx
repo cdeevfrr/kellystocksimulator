@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { ASSET_REGISTRY } from "../engine/AssetRegistry";
-import type { AssetConfig } from "../engine/AssetTypes";
+import { ASSET_REGISTRY } from "../engine/Asset/AssetRegistry";
+import type { AssetConfig } from "../engine/Asset/AssetTypes";
 import { rng } from "../engine/random";
 import { SliderField } from "./SliderField";
 import { PathChart } from "./PathChart";

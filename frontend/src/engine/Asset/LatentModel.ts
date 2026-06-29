@@ -22,7 +22,7 @@
  */
 
 import { gbmIncrement } from "./PathModels";
-import type { RNG } from "./random";
+import type { RNG } from "../random";
 
 interface latentStepState {
   logPrice: number,
